@@ -1,0 +1,59 @@
+In this code I am attempting to try and automate firewall updates to help keep your system up to date, 
+I attempted to accomplish this by branching off a code I found and trying to put my own flare into it from what I have read about migration of firewalls before trying to automate you need to convert the files to CSV files so the script I found I will include I made some Mods to it.
+The source can be found on https://securearmor.wordpress.com/. 
+
+
+Before running this script though I did do some more research and found that you are going to want to separate hosts, Network Groups, Services objects, 
+services group and policies from configuration files.
+
+Here is the Script to convert files to CSV files I modded it a little so I will need help with the automation portion:
+
+# Parse Hosts and Networks
+import re
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("file", type=str, help="Export containing all hosts and networks")
+args = parser.parse_args()
+
+#Read raw exports
+export = open(args.file)
+
+#Files to store results
+hosts = open("Enter your own file where you want results to go to", "w")
+networks = open("Enter your own file where you want results to go to", "w")
+
+#Write the headers into result files
+newline = "\n"
+hosts.write("name,ip-address,ignore-warnings" + newline)
+networks.write("name,subnet,subnet-mask,ignore-warnings" + newline)
+
+pattern - re.compile(r'^ (set address) (".+?) (".+?) (\d+\.\d+\.\d+\.\d+) (\d+\.\d+\.\d+\.\d+) (".+?)?[\s]?$')
+names = []
+#Read each line in raw exports
+for line in export:
+    match = pattern.match(line)
+    if match == None:
+        print(line)
+        continue;
+    else:
+        name = re.sub(r'[,/]','_', match.group(3))
+        if name in names:
+            print("All Duplicate names found: " + name)
+            print("Duplicates removed.")
+            continue
+        else:
+            names.append(name)
+        if match.group(9) == "Enter your IP or the IP your using Or 255.255.255.255":
+            result = [name, match.group(6),'true ']
+            hosts.write(",".join(result) + newline)
+        else:
+            result = [name, match.group(6), match.group(9),'true ']
+            networks.write(",".join(result) + newline)
+
+#Done. Close all of your files
+export.close()
+hosts.close()
+networks.close()
+
+I hope this is helpful in the migration and automation process that I am trying to create to automatically update your systems Firewall
